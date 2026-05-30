@@ -1,0 +1,555 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .page {
+    width: 510px;
+    min-height: 660px;
+    background: #fff;
+    border: 1.5px solid #ccc;
+    font-family: Arial, sans-serif;
+    position: relative;
+    margin: 0 auto;
+  }
+  .header {
+    background: #1B2A5E;
+    padding: 8px 14px 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .header-row1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .sec-pill {
+    background: #E87722;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+  .activity-type {
+    color: #fff;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    opacity: 0.85;
+  }
+  .activity-counter {
+    color: rgba(255,255,255,0.7);
+    font-size: 7.5px;
+  }
+  .header-title {
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    margin-top: 2px;
+  }
+  .inst-band {
+    background: #FFF3E8;
+    border-top: 1px solid #E87722;
+    border-bottom: 1px solid #E87722;
+    padding: 4px 14px;
+    font-size: 8px;
+    font-weight: 700;
+    color: #854F0B;
+    text-align: center;
+    letter-spacing: 0.3px;
+  }
+  .body {
+    padding: 10px 14px;
+    display: flex;
+    gap: 12px;
+  }
+  .left-col { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+  .right-col { width: 148px; display: flex; flex-direction: column; gap: 10px; }
+
+  .grid-area {
+    background: #F9F9F9;
+    border: 1.5px dashed #BBBBBB;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    gap: 6px;
+  }
+  .grid-label {
+    font-size: 8px;
+    font-weight: 700;
+    color: #888;
+    letter-spacing: 0.5px;
+    text-align: center;
+  }
+  .mini-grid {
+    display: grid;
+    gap: 1.5px;
+  }
+  .cell {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #999;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 7px;
+    font-weight: 700;
+    color: #1B2A5E;
+    position: relative;
+  }
+  .cell.black { background: #1B2A5E; border-color: #1B2A5E; }
+  .cell-num {
+    position: absolute;
+    top: 0px;
+    left: 1px;
+    font-size: 5px;
+    color: #E87722;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .grid-note {
+    font-size: 7px;
+    color: #999;
+    text-align: center;
+    font-style: italic;
+  }
+
+  .clues-box {
+    background: #F5F5F5;
+    border-radius: 4px;
+    padding: 8px 10px;
+    flex: 1;
+  }
+  .clues-title {
+    font-size: 8px;
+    font-weight: 700;
+    color: #1B2A5E;
+    letter-spacing: 0.8px;
+    margin-bottom: 5px;
+    border-bottom: 1.5px solid #1B2A5E;
+    padding-bottom: 3px;
+  }
+  .clue-section { margin-bottom: 7px; }
+  .clue-dir {
+    font-size: 7.5px;
+    font-weight: 700;
+    color: #E87722;
+    margin-bottom: 3px;
+    letter-spacing: 0.5px;
+  }
+  .clue-item {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 4px;
+    align-items: flex-start;
+  }
+  .clue-num {
+    background: #1B2A5E;
+    color: #F5C842;
+    font-size: 6.5px;
+    font-weight: 700;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .clue-text {
+    font-size: 7.5px;
+    color: #333;
+    line-height: 1.4;
+  }
+
+  .captain-box {
+    background: #EFF4FB;
+    border: 1px dashed #93B4D8;
+    border-radius: 4px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 72px;
+  }
+  .captain-silhouette {
+    width: 38px;
+    height: 38px;
+    background: #D0DEF0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .captain-label {
+    font-size: 6.5px;
+    color: #5A7FA8;
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  .captain-sub {
+    font-size: 6px;
+    color: #7A9FC0;
+    text-align: center;
+  }
+  .speech-bubble {
+    background: #fff;
+    border: 1px solid #93B4D8;
+    border-radius: 6px;
+    padding: 3px 7px;
+    font-size: 6.5px;
+    color: #1B2A5E;
+    font-weight: 700;
+    text-align: center;
+    position: relative;
+  }
+  .speech-bubble::before {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: #93B4D8;
+  }
+
+  .words-found-box {
+    background: #fff;
+    border: 1px solid #E87722;
+    border-radius: 4px;
+    padding: 6px 8px;
+  }
+  .words-found-title {
+    font-size: 7px;
+    font-weight: 700;
+    color: #E87722;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+  }
+  .word-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+  }
+  .chip {
+    background: #FFF3E8;
+    border: 1px solid #E87722;
+    border-radius: 10px;
+    padding: 2px 7px;
+    font-size: 7px;
+    font-weight: 700;
+    color: #854F0B;
+  }
+
+  .footer {
+    background: #1B2A5E;
+    padding: 5px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+  .footer-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .stars { color: #F5C842; font-size: 10px; letter-spacing: 1px; }
+  .badge-pill {
+    background: #E87722;
+    color: #fff;
+    font-size: 6.5px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .footer-title {
+    color: #93B4D8;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+  }
+  .footer-page {
+    color: #F5C842;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .annotation {
+    position: absolute;
+    background: #FFFDE7;
+    border: 1px solid #F5C842;
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-size: 6.5px;
+    color: #5D4037;
+    font-weight: 700;
+    white-space: nowrap;
+    z-index: 10;
+  }
+  .arrow-line {
+    position: absolute;
+    border-top: 1px dashed #F5C842;
+    z-index: 9;
+    transform-origin: left center;
+  }
+
+  .legend {
+    margin: 12px auto 0;
+    width: 510px;
+    background: #F8F8F8;
+    border: 1px solid #DDD;
+    border-radius: 6px;
+    padding: 10px 14px;
+  }
+  .legend-title {
+    font-size: 9px;
+    font-weight: 700;
+    color: #1B2A5E;
+    letter-spacing: 0.8px;
+    margin-bottom: 7px;
+    border-bottom: 1px solid #DDD;
+    padding-bottom: 4px;
+  }
+  .legend-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px 16px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  .legend-num {
+    background: #1B2A5E;
+    color: #F5C842;
+    font-size: 7px;
+    font-weight: 700;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .legend-text { font-size: 7.5px; color: #444; line-height: 1.5; }
+  .legend-text strong { color: #1B2A5E; }
+  .legend-text em { color: #E87722; font-style: normal; }
+</style>
+
+<div style="padding: 16px 0; display: flex; flex-direction: column; align-items: center; gap: 0;">
+
+<div class="page">
+
+  <div class="header">
+    <div class="header-row1">
+      <div>
+        <div class="sec-pill">SEC.2 · SECURITY &amp; GATE</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="activity-type">CROSSWORD</div>
+        <div class="activity-counter">Activity 12 of 20</div>
+      </div>
+    </div>
+    <div class="header-title">CROSSWORD — AIRPORT WORDS</div>
+  </div>
+
+  <div class="inst-band">
+    Read the clues and fill in the crossword! One letter per box.
+  </div>
+
+  <div class="body" style="padding-bottom: 46px;">
+
+    <div class="left-col">
+
+      <div class="grid-area" style="min-height: 220px;">
+        <div class="grid-label">GRIGLIA CROSSWORD</div>
+        <div class="mini-grid" style="grid-template-columns: repeat(6, 16px);">
+          <div class="cell black"></div>
+          <div class="cell black"></div>
+          <div class="cell" style="position:relative;"><span class="cell-num">1</span></div>
+          <div class="cell black"></div>
+          <div class="cell black"></div>
+          <div class="cell black"></div>
+
+          <div class="cell black"></div>
+          <div class="cell" style="position:relative;"><span class="cell-num">2</span>P</div>
+          <div class="cell">I</div>
+          <div class="cell">L</div>
+          <div class="cell">O</div>
+          <div class="cell">T</div>
+
+          <div class="cell black"></div>
+          <div class="cell black"></div>
+          <div class="cell">A</div>
+          <div class="cell black"></div>
+          <div class="cell black"></div>
+          <div class="cell black"></div>
+
+          <div class="cell" style="position:relative;"><span class="cell-num">3</span>S</div>
+          <div class="cell">E</div>
+          <div class="cell">A</div>
+          <div class="cell">T</div>
+          <div class="cell black"></div>
+          <div class="cell black"></div>
+
+          <div class="cell black"></div>
+          <div class="cell black"></div>
+          <div class="cell">N</div>
+          <div class="cell black"></div>
+          <div class="cell black"></div>
+          <div class="cell black"></div>
+
+          <div class="cell black"></div>
+          <div class="cell black"></div>
+          <div class="cell">E</div>
+          <div class="cell black"></div>
+          <div class="cell black"></div>
+          <div class="cell black"></div>
+        </div>
+        <div class="grid-note">Inserisci PNG da smallpdf — centra nella zona tratteggiata</div>
+      </div>
+
+      <div class="clues-box">
+        <div class="clues-title">CLUES</div>
+        <div class="clue-section">
+          <div class="clue-dir">ACROSS →</div>
+          <div class="clue-item">
+            <div class="clue-num">2</div>
+            <div class="clue-text">Flies the airplane (5 letters)</div>
+          </div>
+          <div class="clue-item">
+            <div class="clue-num">3</div>
+            <div class="clue-text">Sit here on the plane (4 letters)</div>
+          </div>
+        </div>
+        <div class="clue-section">
+          <div class="clue-dir">DOWN ↓</div>
+          <div class="clue-item">
+            <div class="clue-num">1</div>
+            <div class="clue-text">Where you board (4 letters)</div>
+          </div>
+          <div class="clue-item">
+            <div class="clue-num">2</div>
+            <div class="clue-text">Flies in the sky (5 letters)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="words-found-box">
+        <div class="words-found-title">WORDS TO FIND</div>
+        <div class="word-chips">
+          <div class="chip">PLANE</div>
+          <div class="chip">GATE</div>
+          <div class="chip">SEAT</div>
+          <div class="chip">PILOT</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="right-col">
+
+      <div class="captain-box">
+        <div class="speech-bubble">Can you crack<br>the crossword?</div>
+        <div style="height:8px;"></div>
+        <div class="captain-silhouette">🐾</div>
+        <div class="captain-label">CAPTAIN BISCUIT</div>
+        <div class="captain-sub">Posa B — pollice su<br>(angolo in basso a destra)</div>
+      </div>
+
+      <div style="background:#F0F8F0; border:1px dashed #2D6A4F; border-radius:4px; padding:7px 8px;">
+        <div style="font-size:7px; font-weight:700; color:#2D6A4F; margin-bottom:4px; letter-spacing:0.5px;">NOTE CANVA</div>
+        <div style="font-size:6.8px; color:#444; line-height:1.6;">
+          1. Converti PDF → PNG<br>su <strong>smallpdf.com</strong><br><br>
+          2. Carica griglia PNG<br>centrata nell'area tratteggiata<br><br>
+          3. Aggiungi box CLUES<br>con Fredoka One<br><br>
+          4. Word chips:<br>sfondo #FFF3E8<br>bordo #E87722<br>testo #854F0B<br><br>
+          5. Captain Biscuit<br>mini — angolo basso dx
+        </div>
+      </div>
+
+      <div style="background:#E8EFF8; border:1px solid #93B4D8; border-radius:4px; padding:7px 8px;">
+        <div style="font-size:7px; font-weight:700; color:#1B2A5E; margin-bottom:4px; letter-spacing:0.5px;">MISURE CANVA</div>
+        <div style="font-size:6.8px; color:#444; line-height:1.6;">
+          Header: h=44px<br>
+          Inst. band: h=22px<br>
+          Griglia: area centrale<br>
+          Footer: h=28px<br><br>
+          <strong>Colore header:</strong><br>
+          #1B2A5E (Navy)<br><br>
+          <strong>Pill sezione:</strong><br>
+          bg #E87722<br>testo bianco
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-badge">
+      <span class="stars">★★</span>
+      <span class="badge-pill">Medium · Ages 6–7</span>
+    </div>
+    <div class="footer-title">CROSSWORD</div>
+    <div class="footer-page">32</div>
+  </div>
+
+</div>
+
+<div class="legend">
+  <div class="legend-title">ISTRUZIONI CANVA — p.32 CROSSWORD</div>
+  <div class="legend-grid">
+    <div class="legend-item">
+      <div class="legend-num">1</div>
+      <div class="legend-text"><strong>Header</strong> → bg <em>#1B2A5E</em> | pill <em>#E87722</em> "SEC.2 · SECURITY &amp; GATE" | counter "Activity 12 of 20" | tipo "CROSSWORD"</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-num">2</div>
+      <div class="legend-text"><strong>Banda istruzione</strong> → bg <em>#FFF3E8</em>, bordo <em>#E87722</em> | testo Fredoka One <em>#854F0B</em>: "Read the clues and fill in the crossword!"</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-num">3</div>
+      <div class="legend-text"><strong>Griglia</strong> → converti PDF→PNG su smallpdf.com | centra nella colonna sinistra | dimensione circa 55% della larghezza pagina</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-num">4</div>
+      <div class="legend-text"><strong>CLUES box</strong> → bg <em>#F5F5F5</em> | numeri su cerchio <em>#1B2A5E</em> con numero <em>#F5C842</em> | direzioni ACROSS/DOWN in <em>#E87722</em></div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-num">5</div>
+      <div class="legend-text"><strong>Word chips</strong> → le 4 parole come pillole | bg <em>#FFF3E8</em>, bordo <em>#E87722</em>, testo <em>#854F0B</em> bold</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-num">6</div>
+      <div class="legend-text"><strong>Captain Biscuit</strong> → Posa B (pollice su) | mini, angolo basso dx della griglia | fumetto "Can you crack the crossword?"</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-num">7</div>
+      <div class="legend-text"><strong>Footer</strong> → bg <em>#1B2A5E</em> | ★★ Medium · Ages 6–7 sx | "CROSSWORD" centro <em>#93B4D8</em> | numero <em>#F5C842</em> dx</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-num">8</div>
+      <div class="legend-text"><strong>Colonna destra</strong> → Captain Biscuit box + note Canva + specifiche misure. In Canva questa colonna è opzionale — può contenere solo Captain Biscuit</div>
+    </div>
+  </div>
+</div>
+
+</div>

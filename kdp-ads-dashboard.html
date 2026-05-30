@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KDP Ads Monitor — The Right Click Books</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3247;
+    --text: #e8eaf6;
+    --text-muted: #8b8fa8;
+    --green: #00e676;
+    --green-bg: #00e67615;
+    --green-border: #00e67640;
+    --yellow: #ffd740;
+    --yellow-bg: #ffd74015;
+    --yellow-border: #ffd74040;
+    --red: #ff5252;
+    --red-bg: #ff525215;
+    --red-border: #ff525240;
+    --blue: #448aff;
+    --blue-bg: #448aff15;
+    --accent: #7c4dff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .header-left h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .header-left p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+  .badge-prime {
+    background: linear-gradient(135deg, #ff9900, #ff6600);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+  .period-selector {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: var(--text);
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  /* BREAKEVEN BANNER */
+  .breakeven-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .be-item { text-align: center; }
+  .be-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .be-value { font-size: 20px; font-weight: 700; margin-top: 2px; }
+  .be-divider { width: 1px; height: 36px; background: var(--border); }
+
+  /* KPI CARDS */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .kpi-card.green::before { background: var(--green); }
+  .kpi-card.yellow::before { background: var(--yellow); }
+  .kpi-card.red::before { background: var(--red); }
+  .kpi-card.blue::before { background: var(--blue); }
+
+  .kpi-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .kpi-value {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .kpi-card.green .kpi-value { color: var(--green); }
+  .kpi-card.yellow .kpi-value { color: var(--yellow); }
+  .kpi-card.red .kpi-value { color: var(--red); }
+  .kpi-card.blue .kpi-value { color: var(--blue); }
+
+  .kpi-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+  .kpi-trend {
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  /* SEMAFORO LEGEND */
+  .legend {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .dot.green { background: var(--green); }
+  .dot.yellow { background: var(--yellow); }
+  .dot.red { background: var(--red); }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title .icon {
+    width: 24px; height: 24px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+  }
+
+  /* CAMPAIGNS TABLE */
+  .table-wrapper {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead {
+    background: var(--surface2);
+  }
+  th {
+    padding: 12px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+
+  .campaign-name {
+    font-weight: 600;
+    font-size: 13px;
+    max-width: 200px;
+  }
+  .camp-type {
+    font-size: 10px;
+    color: var(--text-muted);
+    background: var(--surface2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 3px;
+    display: inline-block;
+  }
+
+  /* METRIC CHIPS */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .chip.green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .chip.yellow { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+  .chip.red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+  .chip.gray { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
+
+  .dot-indicator {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+  .chip.green .dot-indicator { background: var(--green); }
+  .chip.yellow .dot-indicator { background: var(--yellow); }
+  .chip.red .dot-indicator { background: var(--red); }
+  .chip.gray .dot-indicator { background: var(--text-muted); }
+
+  /* ACTIONS PANEL */
+  .actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .action-card {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 18px;
+    border-left: 4px solid;
+  }
+  .action-card.urgent { border-color: var(--red); }
+  .action-card.warning { border-color: var(--yellow); }
+  .action-card.good { border-color: var(--green); }
+  .action-card.info { border-color: var(--blue); }
+
+  .action-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .action-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .action-card.urgent .action-badge { background: var(--red-bg); color: var(--red); }
+  .action-card.warning .action-badge { background: var(--yellow-bg); color: var(--yellow); }
+  .action-card.good .action-badge { background: var(--green-bg); color: var(--green); }
+  .action-card.info .action-badge { background: var(--blue-bg); color: var(--blue); }
+
+  .action-title { font-size: 14px; font-weight: 700; }
+  .action-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+  .action-steps { margin-top: 10px; padding-left: 16px; }
+  .action-steps li { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; line-height: 1.5; }
+
+  /* PRIME DAY SECTION */
+  .prime-day-box {
+    background: linear-gradient(135deg, #1a1205, #211500);
+    border: 1px solid #ff990044;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+  .prime-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #ff9900;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .prime-sub {
+    font-size: 12px;
+    color: #cc7700;
+    margin-bottom: 20px;
+  }
+  .prime-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .prime-camp {
+    background: rgba(255,153,0,0.08);
+    border: 1px solid rgba(255,153,0,0.25);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .prime-camp-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #ff9900;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .prime-camp-detail {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255,153,0,0.1);
+    color: var(--text-muted);
+  }
+  .prime-camp-detail:last-child { border-bottom: none; }
+  .prime-camp-detail span:last-child { color: var(--text); font-weight: 600; }
+
+  .prime-timeline {
+    display: flex;
+    gap: 0;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .timeline-phase {
+    flex: 1;
+    min-width: 140px;
+    padding: 12px 14px;
+    border-right: 1px solid rgba(255,153,0,0.2);
+  }
+  .timeline-phase:last-child { border-right: none; }
+  .phase-date { font-size: 11px; color: #ff9900; font-weight: 700; margin-bottom: 6px; }
+  .phase-action { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+  /* UPDATE DATA FORM */
+  .update-form {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-top: 16px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .form-group input, .form-group select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus {
+    border-color: var(--accent);
+  }
+  .form-group select option { background: var(--surface2); }
+
+  .btn-update {
+    margin-top: 16px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .btn-update:hover { opacity: 0.85; }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-muted);
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* STATUS TOGGLE */
+  .status-toggle {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .toggle-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text-muted);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .toggle-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* SCHEDULED badge */
+  .chip.orange { background: rgba(255,153,0,0.12); color: #ff9900; border: 1px solid rgba(255,153,0,0.35); }
+  .chip.orange .dot-indicator { background: #ff9900; }
+  .camp-type.prime { background: rgba(255,153,0,0.15); color: #ff9900; }
+
+  /* Toast notification */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--green);
+    color: #000;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 999;
+  }
+  #toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast">✅ Dati aggiornati!</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <h1>📊 KDP Ads Monitor</h1>
+    <p>The Right Click Books · NeonDestiny Series · Aggiornato: <span id="lastUpdatedLabel">—</span></p>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+    <span class="badge-prime">🛒 PRIME DAY READY</span>
+  </div>
+</div>
+
+<!-- BREAKEVEN BAR -->
+<div class="breakeven-bar">
+  <div class="be-item">
+    <div class="be-label">Prezzo libro</div>
+    <div class="be-value" style="color:var(--text)">$9,99</div>
+  </div>
+  <div class="be-divider"></div>
+  <div class="be-item">
+    <div class="be-label">Royalty</div>
+    <div class="be-value" style="color:var(--blue)">$2,84</div>
+  </div>
+  <div class="be-divider"></div>
+  <div class="be-item">
+    <div class="be-label">ACoS Breakeven</div>
+    <div class="be-value" style="color:var(--yellow)">28,4%</div>
+  </div>
+  <div class="be-divider"></div>
+  <div class="be-item">
+    <div class="be-label">ACoS Target Prime Day</div>
+    <div class="be-value" style="color:var(--green)">25%</div>
+  </div>
+  <div class="be-divider"></div>
+  <div class="be-item">
+    <div class="be-label">CPC Max Consigliato</div>
+    <div class="be-value" style="color:var(--text)">$0,45</div>
+  </div>
+  <div class="be-divider"></div>
+  <div class="be-item">
+    <div class="be-label">Periodo analisi</div>
+    <div class="be-value" style="color:var(--text);font-size:14px;">17 apr – 17 mag</div>
+  </div>
+</div>
+
+<!-- KPI CARDS -->
+<div class="kpi-grid">
+  <div class="kpi-card red">
+    <div class="kpi-label">ACoS Globale</div>
+    <div class="kpi-value">208%</div>
+    <div class="kpi-sub">Breakeven: 28,4%</div>
+    <div class="kpi-trend" style="color:var(--red)">⛔ Critico — 5 campagne su 6 senza vendite</div>
+  </div>
+  <div class="kpi-card green">
+    <div class="kpi-label">Migliore ACoS</div>
+    <div class="kpi-value">24,82%</div>
+    <div class="kpi-sub">Vol1_MANUAL #2</div>
+    <div class="kpi-trend" style="color:var(--green)">✅ Sotto breakeven di 3,6 punti</div>
+  </div>
+  <div class="kpi-card red">
+    <div class="kpi-label">Spesa Totale</div>
+    <div class="kpi-value">$20,79</div>
+    <div class="kpi-sub">Periodo 30 giorni</div>
+    <div class="kpi-trend" style="color:var(--red)">$0,69/giorno media</div>
+  </div>
+  <div class="kpi-card yellow">
+    <div class="kpi-label">Vendite Ads</div>
+    <div class="kpi-value">$9,99</div>
+    <div class="kpi-sub">1 acquisto totale</div>
+    <div class="kpi-trend" style="color:var(--yellow)">⚠️ Perdita netta: -$10,80</div>
+  </div>
+  <div class="kpi-card yellow">
+    <div class="kpi-label">CTR Medio</div>
+    <div class="kpi-value">0,11%</div>
+    <div class="kpi-sub">Benchmark: >0,30%</div>
+    <div class="kpi-trend" style="color:var(--yellow)">⚠️ Copertina/titolo da ottimizzare</div>
+  </div>
+  <div class="kpi-card blue">
+    <div class="kpi-label">Impressioni Totali</div>
+    <div class="kpi-value">45k</div>
+    <div class="kpi-sub">48 click totali</div>
+    <div class="kpi-trend" style="color:var(--blue)">📊 Visibilità ok, conversioni da migliorare</div>
+  </div>
+</div>
+
+<!-- CAMPAIGNS TABLE -->
+<div class="section-title">
+  <div class="icon">📋</div>
+  Campagne Attive — Dettaglio Metriche
+</div>
+
+<div class="legend">
+  <div class="legend-item"><span class="dot green"></span>Ottimo (entro target)</div>
+  <div class="legend-item"><span class="dot yellow"></span>Attenzione (monitorare)</div>
+  <div class="legend-item"><span class="dot red"></span>Critico (agire subito)</div>
+</div>
+
+<div class="table-wrapper">
+  <table id="campaignTable">
+    <thead>
+      <tr>
+        <th>Campagna</th>
+        <th>Impressioni</th>
+        <th>Click</th>
+        <th>CTR</th>
+        <th>Spesa</th>
+        <th>CPC</th>
+        <th>Acquisti</th>
+        <th>Vendite</th>
+        <th>ACoS</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="campaignBody">
+      <!-- Populated by JS -->
+    </tbody>
+  </table>
+</div>
+
+<!-- AZIONI CONSIGLIATE -->
+<div class="section-title">
+  <div class="icon">⚡</div>
+  Azioni Consigliate — Questa Settimana
+</div>
+
+<div class="actions-grid">
+  <div class="action-card urgent">
+    <div class="action-header">
+      <span class="action-badge">🔴 Urgente</span>
+      <span class="action-title">AUTO campaigns — Estrai keyword che convertono</span>
+    </div>
+    <p class="action-desc">Le campagne AUTO hanno speso $13,89 senza generare 1 vendita. Prima del Prime Day devi estrarre i search term che hanno generato click e decidere cosa tenere.</p>
+    <ul class="action-steps">
+      <li>→ Vai in <strong>NeonDestiny_Vol1_AUTO</strong> → Reports → Search Terms</li>
+      <li>→ Scarica CSV degli ultimi 30 giorni</li>
+      <li>→ Aggiungi come NEGATIVE EXACT i termini irrilevanti (≥3 click, 0 vendite)</li>
+      <li>→ Porta i termini con vendite in campagna MANUAL come Exact Match</li>
+    </ul>
+  </div>
+
+  <div class="action-card good">
+    <div class="action-badge" style="background:var(--green-bg);color:var(--green);font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;display:inline-block;margin-bottom:8px;">🟢 Scala</div>
+    <div class="action-title" style="font-size:14px;font-weight:700;margin-bottom:10px;">Vol1_MANUAL #2 — ACoS 24,82% ✅ Aumenta bid</div>
+    <p class="action-desc">Questa è l'UNICA campagna che converte ed è sotto breakeven. Va scalata prima del Prime Day.</p>
+    <ul class="action-steps">
+      <li>→ Entra nelle keyword con acquisti confermati</li>
+      <li>→ Aumenta bid del <strong>+15%</strong> sulle keyword che hanno generato la vendita</li>
+      <li>→ Porta budget giornaliero da attuale a <strong>$8-10/giorno</strong></li>
+      <li>→ Monitora ACoS ogni 3 giorni — non deve superare 28,4%</li>
+    </ul>
+  </div>
+
+  <div class="action-card warning">
+    <div class="action-badge" style="background:var(--yellow-bg);color:var(--yellow);font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;display:inline-block;margin-bottom:8px;">🟡 Attenzione</div>
+    <div class="action-title" style="font-size:14px;font-weight:700;margin-bottom:10px;">Vol1_MANUAL #1 — CPC $0,66 troppo alto</div>
+    <p class="action-desc">CPC di $0,66 è sopra il limite consigliato di $0,45. 4 click, 0 vendite, $2,63 spesi. Abbassa i bid.</p>
+    <ul class="action-steps">
+      <li>→ Riduci bid di <strong>-20%</strong> su tutte le keyword di questa campagna</li>
+      <li>→ Target CPC: max $0,45</li>
+      <li>→ Rivaluta tra 7 giorni — se ancora 0 vendite, pausa campagna</li>
+    </ul>
+  </div>
+
+  <div class="action-card info">
+    <div class="action-badge" style="background:var(--blue-bg);color:var(--blue);font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;display:inline-block;margin-bottom:8px;">🔵 CTR</div>
+    <div class="action-title" style="font-size:14px;font-weight:700;margin-bottom:10px;">CTR medio 0,11% — Problema di listing</div>
+    <p class="action-desc">Un CTR sotto 0,30% non è un problema di ads — è un problema di copertina, titolo o prezzo. Le ads non possono risolvere questo da sole.</p>
+    <ul class="action-steps">
+      <li>→ Verifica la copertina rispetto ai competitor nella categoria</li>
+      <li>→ Controlla il titolo e le prime righe della descrizione su mobile</li>
+      <li>→ Valuta un test PickFu della copertina prima del Prime Day</li>
+    </ul>
+  </div>
+</div>
+
+<!-- PRIME DAY SECTION -->
+<div class="prime-day-box">
+  <div class="prime-title">🛒 Strategia Prime Day — NeonDestiny Series</div>
+  <div class="prime-sub">Obiettivo: visibilità + profitto | ACoS target: 25% | Budget controllato | CPC max: $0,45</div>
+
+  <div class="prime-grid">
+    <div class="prime-camp">
+      <div class="prime-camp-name">⚡ PD-Exact (campagna principale)</div>
+      <div class="prime-camp-detail"><span>Tipo</span><span>Sponsored Products — Manual Exact</span></div>
+      <div class="prime-camp-detail"><span>Budget/giorno</span><span>$10,00</span></div>
+      <div class="prime-camp-detail"><span>Bid massimo</span><span>$0,45</span></div>
+      <div class="prime-camp-detail"><span>Keyword</span><span>Quelle che già convertono</span></div>
+      <div class="prime-camp-detail"><span>ACoS target</span><span>25% (sotto breakeven)</span></div>
+      <div class="prime-camp-detail"><span>Priorità</span><span>🥇 Alta</span></div>
+    </div>
+
+    <div class="prime-camp">
+      <div class="prime-camp-name">🔍 PD-Auto (scoperta)</div>
+      <div class="prime-camp-detail"><span>Tipo</span><span>Sponsored Products — Automatica</span></div>
+      <div class="prime-camp-detail"><span>Budget/giorno</span><span>$5,00</span></div>
+      <div class="prime-camp-detail"><span>Bid massimo</span><span>$0,35</span></div>
+      <div class="prime-camp-detail"><span>Obiettivo</span><span>Scoprire nuove keyword Prime Day</span></div>
+      <div class="prime-camp-detail"><span>ACoS target</span><span>&lt;40% (fase scoperta)</span></div>
+      <div class="prime-camp-detail"><span>Priorità</span><span>🥈 Media</span></div>
+    </div>
+
+    <div class="prime-camp">
+      <div class="prime-camp-name">🎯 PD-ASIN (competitor)</div>
+      <div class="prime-camp-detail"><span>Tipo</span><span>Sponsored Products — Product Targeting</span></div>
+      <div class="prime-camp-detail"><span>Budget/giorno</span><span>$3,00</span></div>
+      <div class="prime-camp-detail"><span>Bid massimo</span><span>$0,35</span></div>
+      <div class="prime-camp-detail"><span>Target</span><span>ASIN competitor nella tua nicchia</span></div>
+      <div class="prime-camp-detail"><span>ACoS target</span><span>&lt;35%</span></div>
+      <div class="prime-camp-detail"><span>Priorità</span><span>🥉 Bassa</span></div>
+    </div>
+  </div>
+
+  <div style="background:rgba(255,153,0,0.08);border:1px solid rgba(255,153,0,0.2);border-radius:8px;padding:14px;margin-bottom:16px;">
+    <div style="font-size:12px;font-weight:700;color:#ff9900;margin-bottom:8px;">📊 Budget Prime Day stimato: $18/giorno max · Durata evento: ~2 giorni · Totale max: ~$36</div>
+    <div style="font-size:12px;color:#cc7700;">Con ACoS target al 25% e royalty $2,84: ogni $1 speso devi generare almeno $3,55 in vendite.<br>
+    Con $18/giorno di budget: devi vendere almeno 6-7 copie/giorno per restare in profitto.</div>
+  </div>
+
+  <div class="prime-timeline">
+    <div class="timeline-phase">
+      <div class="phase-date">📅 Adesso (Maggio)</div>
+      <div class="phase-action">• Ottimizza campagne esistenti<br>• Estrai keyword che convertono<br>• Sistema CPC alto di Vol1_MANUAL #1<br>• Verifica CTR (listing/copertina)</div>
+    </div>
+    <div class="timeline-phase">
+      <div class="phase-date">📅 -2 settimane (Giu)</div>
+      <div class="phase-action">• Crea campagne PD-Exact, PD-Auto, PD-ASIN<br>• Imposta bid conservativi<br>• Lascia girare 7-10 giorni per dati base</div>
+    </div>
+    <div class="timeline-phase">
+      <div class="phase-date">📅 -3 giorni (Lug)</div>
+      <div class="phase-action">• Aumenta bid +20% su keyword che convertono<br>• Porta budget giornaliero al massimo<br>• Attiva regola pausa ACoS > 35%</div>
+    </div>
+    <div class="timeline-phase">
+      <div class="phase-date">🛒 Prime Day</div>
+      <div class="phase-action">• Monitora ogni 4-6 ore<br>• Pausa keyword che bruciano budget<br>• Scala immediatamente chi converte<br>• Non toccare ciò che funziona</div>
+    </div>
+    <div class="timeline-phase">
+      <div class="phase-date">📅 +3 giorni (dopo)</div>
+      <div class="phase-action">• Scarica Search Terms Report<br>• Estrai keyword Prime Day che hanno convertito<br>• Decidi quali campagne mantenere attive<br>• Riduci budget alle normali</div>
+    </div>
+  </div>
+</div>
+
+<!-- UPDATE DATA FORM -->
+<div class="update-form">
+  <div class="section-title" style="margin-bottom:6px;">
+    <div class="icon">📝</div>
+    Aggiorna Dati Manualmente
+  </div>
+  <p style="font-size:12px;color:var(--text-muted);margin-bottom:0;">Inserisci i dati dall'export Amazon Ads per aggiornare il semaforo in tempo reale.</p>
+
+  <div class="form-grid">
+    <div class="form-group">
+      <label>Seleziona Campagna</label>
+      <select id="updateCampaign">
+        <!-- Populated by JS from data.js -->
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Impressioni</label>
+      <input type="number" id="u_imp" placeholder="es. 22030">
+    </div>
+    <div class="form-group">
+      <label>Click</label>
+      <input type="number" id="u_clicks" placeholder="es. 20">
+    </div>
+    <div class="form-group">
+      <label>Spesa ($)</label>
+      <input type="number" step="0.01" id="u_spend" placeholder="es. 8.24">
+    </div>
+    <div class="form-group">
+      <label>Vendite ($)</label>
+      <input type="number" step="0.01" id="u_sales" placeholder="es. 9.99">
+    </div>
+    <div class="form-group">
+      <label>Acquisti (ordini)</label>
+      <input type="number" id="u_orders" placeholder="es. 1">
+    </div>
+  </div>
+  <button class="btn-update" onclick="updateCampaign()">Aggiorna Semaforo →</button>
+</div>
+
+<div class="footer">
+  KDP Ads Monitor · The Right Click Books · Build 1.0 · Semaforo basato su ACoS breakeven 28,4%<br>
+  <span style="color:#666;">Per collegamento API automatico: richiede credenziali Amazon Ads API (LWA)</span>
+</div>
+
+<script src="data.js"></script>
+<script>
+  // Load from data.js if available, otherwise fall back to defaults
+  const RAW = (typeof window.CAMPAIGN_DATA !== 'undefined') ? window.CAMPAIGN_DATA : null;
+
+  const BREAKEVEN = RAW ? RAW.breakevenAcos : 28.4;
+
+  let campaigns = RAW ? RAW.campaigns : [
+    { name: "NeonDestiny_Vol1_AUTO",     type: "AUTO",   imp: 22030, clicks: 20, spend: 8.24,  sales: 0,    orders: 0, status: "active" },
+    { name: "NeonDestiny_Vol2_AUTO",     type: "AUTO",   imp: 16027, clicks: 14, spend: 5.65,  sales: 0,    orders: 0, status: "active" },
+    { name: "NeonDestiny_Vol1_MANUAL #1",type: "MANUAL", imp: 1450,  clicks: 4,  spend: 2.63,  sales: 0,    orders: 0, status: "paused" },
+    { name: "NeonDestiny_Vol1_MANUAL #2",type: "MANUAL", imp: 2690,  clicks: 6,  spend: 2.48,  sales: 9.99, orders: 1, status: "active" },
+    { name: "NeonDestiny_Vol2_MANUAL #1",type: "MANUAL", imp: 2621,  clicks: 3,  spend: 1.29,  sales: 0,    orders: 0, status: "active" },
+    { name: "NeonDestiny_Vol2_MANUAL #2",type: "MANUAL", imp: 265,   clicks: 1,  spend: 0.50,  sales: 0,    orders: 0, status: "active" },
+  ];
+
+  // Update header date label
+  if (RAW) {
+    const lbl = document.getElementById('lastUpdatedLabel');
+    if (lbl) lbl.textContent = RAW.lastUpdated;
+  }
+
+  // Populate campaign select dropdown
+  function populateSelect() {
+    const sel = document.getElementById('updateCampaign');
+    sel.innerHTML = '';
+    campaigns.forEach((c, i) => {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = c.name;
+      sel.appendChild(opt);
+    });
+  }
+
+  function calcMetrics(c) {
+    const ctr = c.clicks > 0 ? (c.clicks / c.imp * 100) : 0;
+    const cpc = c.clicks > 0 ? (c.spend / c.clicks) : 0;
+    const acos = c.sales > 0 ? (c.spend / c.sales * 100) : null;
+    return { ctr, cpc, acos };
+  }
+
+  function acosColor(acos) {
+    if (acos === null) return 'red';
+    if (acos <= BREAKEVEN) return 'green';
+    if (acos <= BREAKEVEN * 1.4) return 'yellow';
+    return 'red';
+  }
+
+  function ctrColor(ctr) {
+    if (ctr >= 0.30) return 'green';
+    if (ctr >= 0.10) return 'yellow';
+    return 'red';
+  }
+
+  function cpcColor(cpc) {
+    if (cpc <= 0.35) return 'green';
+    if (cpc <= 0.45) return 'yellow';
+    return 'red';
+  }
+
+  function acosLabel(acos) {
+    if (acos === null) return '—';
+    return acos.toFixed(2) + '%';
+  }
+
+  function statusChip(c, m) {
+    if (c.status === 'scheduled') {
+      return `<span class="chip orange"><span class="dot-indicator"></span>Programmata ${c.startDate || ''}</span>`;
+    }
+    if (c.status === 'paused') {
+      return '<span class="chip gray"><span class="dot-indicator"></span>In pausa</span>';
+    }
+    if (m.acos !== null && m.acos <= BREAKEVEN) return '<span class="chip green"><span class="dot-indicator"></span>Profittevole</span>';
+    if (c.orders === 0 && c.spend > 1.50) return '<span class="chip red"><span class="dot-indicator"></span>Ottimizza</span>';
+    if (c.orders === 0 && c.spend <= 1.50) return '<span class="chip yellow"><span class="dot-indicator"></span>Pochi dati</span>';
+    return '<span class="chip yellow"><span class="dot-indicator"></span>Monitorare</span>';
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('campaignBody');
+    tbody.innerHTML = '';
+    campaigns.forEach(c => {
+      const isScheduled = c.status === 'scheduled';
+      const m = calcMetrics(c);
+      const acColor = isScheduled ? 'orange' : acosColor(m.acos);
+      const ctColor = isScheduled ? 'gray'   : ctrColor(m.ctr);
+      const cpColor = isScheduled ? 'gray'   : cpcColor(m.cpc);
+      const typeClass = c.type === 'PRIME DAY' ? 'camp-type prime' : 'camp-type';
+
+      const impDisplay   = isScheduled ? '—' : c.imp.toLocaleString('it-IT');
+      const clickDisplay = isScheduled ? '—' : c.clicks;
+      const ctrDisplay   = isScheduled ? '<span class="chip gray"><span class="dot-indicator"></span>—</span>'
+                                       : `<span class="chip ${ctColor}"><span class="dot-indicator"></span>${m.ctr.toFixed(2)}%</span>`;
+      const spendDisplay = isScheduled ? '—' : `$${c.spend.toFixed(2)}`;
+      const cpcDisplay   = isScheduled ? '<span class="chip gray"><span class="dot-indicator"></span>—</span>'
+                                       : `<span class="chip ${cpColor}"><span class="dot-indicator"></span>$${m.cpc.toFixed(2)}</span>`;
+      const ordersDisplay = isScheduled ? '—' : c.orders;
+      const salesDisplay  = isScheduled ? `Budget $${c.budget || 0}/gg` : (c.sales > 0 ? '$' + c.sales.toFixed(2) : '—');
+      const acosDisplay   = isScheduled ? '<span class="chip orange"><span class="dot-indicator"></span>—</span>'
+                                        : `<span class="chip ${acColor}"><span class="dot-indicator"></span>${acosLabel(m.acos)}</span>`;
+
+      const row = `<tr>
+        <td>
+          <div class="campaign-name">${c.name}</div>
+          <span class="${typeClass}">${c.type}</span>
+        </td>
+        <td>${impDisplay}</td>
+        <td>${clickDisplay}</td>
+        <td>${ctrDisplay}</td>
+        <td>${spendDisplay}</td>
+        <td>${cpcDisplay}</td>
+        <td>${ordersDisplay}</td>
+        <td>${salesDisplay}</td>
+        <td>${acosDisplay}</td>
+        <td>${statusChip(c, m)}</td>
+      </tr>`;
+      tbody.innerHTML += row;
+    });
+  }
+
+  function updateCampaign() {
+    const idx    = parseInt(document.getElementById('updateCampaign').value);
+    const imp    = parseFloat(document.getElementById('u_imp').value)    || campaigns[idx].imp;
+    const clicks = parseFloat(document.getElementById('u_clicks').value) || campaigns[idx].clicks;
+    const spend  = parseFloat(document.getElementById('u_spend').value)  || campaigns[idx].spend;
+    const sales  = parseFloat(document.getElementById('u_sales').value);
+    const orders = parseFloat(document.getElementById('u_orders').value) || campaigns[idx].orders;
+
+    campaigns[idx] = { ...campaigns[idx], imp, clicks, spend, sales: isNaN(sales) ? campaigns[idx].sales : sales, orders };
+    renderTable();
+
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  // Init
+  populateSelect();
+  renderTable();
+</script>
+</body>
+</html>
